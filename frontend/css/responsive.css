@@ -1,0 +1,232 @@
+/* =============================================
+   ROUTEMASTER — Responsive Styles & Breakpoints
+   ============================================= */
+
+/* ── Tablet Breakpoint (1024px and below) ── */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 72px;
+    }
+
+    .sidebar-logo-text,
+    .sidebar-section-label,
+    .sidebar-link span,
+    .sidebar-user-info,
+    .sidebar-logout span {
+        display: none !important;
+    }
+
+    .sidebar-logo {
+        padding: var(--space-4) 0;
+        justify-content: center;
+    }
+
+    .sidebar-nav {
+        padding: var(--space-4) var(--space-2);
+        align-items: center;
+    }
+
+    .sidebar-link {
+        padding: var(--space-3);
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        border-radius: var(--radius-md);
+        border-left: none;
+        margin-left: 0;
+    }
+
+    .sidebar-link.active {
+        box-shadow: var(--shadow-glow);
+    }
+
+    .sidebar-footer {
+        padding: var(--space-4) 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .sidebar-user {
+        padding: 0;
+        justify-content: center;
+    }
+
+    .sidebar-logout {
+        padding: var(--space-3);
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        border-radius: var(--radius-md);
+        margin-top: 0;
+    }
+
+    .main-content {
+        margin-left: var(--sidebar-width);
+        padding: var(--space-6);
+    }
+
+    .content-grid.cols-3,
+    .content-grid.cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content-grid.cols-3 > [style*="grid-column"],
+    .content-grid.cols-4 > [style*="grid-column"],
+    .content-grid.cols-3 > .card,
+    .content-grid.cols-4 > .card {
+        grid-column: span 1 !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ── Mobile Breakpoint (768px and below) ── */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 260px;
+    }
+
+    /* Show hamburger menu toggle */
+    .sidebar-toggle {
+        display: flex;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: none;
+        height: 100vh;
+    }
+
+    .sidebar.sidebar-open {
+        transform: translateX(0);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Restore sidebar elements text on mobile slideout */
+    .sidebar-logo-text,
+    .sidebar-link span,
+    .sidebar-user-info,
+    .sidebar-logout span {
+        display: block !important;
+    }
+
+    .sidebar-section-label {
+        display: block !important;
+    }
+
+    .sidebar-logo {
+        padding: var(--space-6) var(--space-6);
+        justify-content: flex-start;
+    }
+
+    .sidebar-nav {
+        padding: var(--space-4) var(--space-3);
+        align-items: stretch;
+    }
+
+    .sidebar-link {
+        padding: var(--space-3) var(--space-4);
+        justify-content: flex-start;
+        width: auto;
+        height: auto;
+        border-left: 3px solid transparent;
+        margin-left: -3px;
+    }
+
+    .sidebar-footer {
+        padding: var(--space-4) var(--space-4);
+        align-items: stretch;
+    }
+
+    .sidebar-user {
+        padding: var(--space-3);
+        justify-content: flex-start;
+    }
+
+    .sidebar-logout {
+        padding: var(--space-3) var(--space-4);
+        justify-content: flex-start;
+        width: 100%;
+        height: auto;
+        margin-top: var(--space-2);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: var(--space-6);
+        padding-top: calc(42px + var(--space-6) * 2); /* Push content down for mobile header toggle */
+    }
+
+    .page-header {
+        margin-bottom: var(--space-6);
+    }
+
+    .page-title {
+        font-size: var(--text-xl);
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+
+    .content-grid.cols-2,
+    .content-grid.cols-3,
+    .content-grid.cols-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .content-grid > .card,
+    .content-grid > div,
+    [style*="grid-column"] {
+        grid-column: auto !important;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+
+    .welcome-banner {
+        padding: var(--space-6);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
+
+    .results-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Tiny Mobile Breakpoint (480px and below) ── */
+@media (max-width: 480px) {
+    .main-content {
+        padding: var(--space-4);
+        padding-top: calc(42px + var(--space-4) * 2);
+    }
+
+    .card {
+        padding: var(--space-4);
+    }
+
+    .page-header-actions {
+        width: 100%;
+    }
+
+    .page-header-actions .btn {
+        width: 100%;
+    }
+
+    .route-form-actions {
+        flex-direction: column;
+    }
+}

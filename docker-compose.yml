@@ -1,0 +1,99 @@
+services:
+  # Database Service
+  mysql-db:
+    image: mysql:8.0
+    container_name: llm-opt-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "Jayambe@11"
+      MYSQL_DATABASE: "auth_db"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - llm-opt-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pJayambe@11"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Service Registry (Eureka Discovery Server)
+  service-registry:
+    build:
+      context: ./service-registry
+      dockerfile: Dockerfile
+    container_name: service-registry
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - llm-opt-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8761/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-dateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "3333:3333"
+    environment:
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    networks:
+      - llm-opt-net
+
+  # Authentication Service
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/auth_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - MAIL_HOST=smtp.gmail.com
+      - MAIL_PORT=587
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+    networks:
+      - llm-opt-net
+
+  # Routing Engine (LLM Optimizer)
+  routing-engine:
+    build:
+      context: ./routing-engine
+      dockerfile: Dockerfile
+    container_name: routing-engine
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - LLMESH_BUDGET-SERVICE_BASE-URL=http://budget-service:9091
+    depends_on:
+      service-registry:
+        condition: service_healthy
+    networks:
+      - llm-opt-net
+
+networks:
+  llm-opt-net:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #0C1017;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create an account on CostReducer AI to optimize prompt tokens and route LLMs.">
+    <title>Register - CostReducer AI</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <!-- Theme Toggle Flash Prevention -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+                document.documentElement.style.backgroundColor = '#f8fafc';
+            } else {
+                document.documentElement.style.backgroundColor = '#0C1017';
+            }
+        })();
+    </script>
+    
+    <!-- CSS Custom Reset & Stylesheets -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-shield-halved"></i>
+                <span>CostReducer AI</span>
+            </div>
+            <p class="auth-subtitle">Create your account to start optimizing token costs</p>
+        </div>
+        
+        <form id="registerForm" class="auth-form" novalidate>
+            <!-- Full Name Input Group -->
+            <div class="form-group">
+                <label for="name" class="form-label">Full Name</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="name" class="form-input" placeholder="John Doe" required autocomplete="name">
+                </div>
+            </div>
+
+            <!-- Email Input Group -->
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" class="form-input" placeholder="name@example.com" required autocomplete="email">
+                </div>
+            </div>
+            
+            <!-- Password Input Group -->
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" class="form-input" placeholder="At least 6 characters" required autocomplete="new-password">
+                    <button type="button" class="password-toggle" title="Toggle password visibility">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confirm Password Input Group -->
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-lock-open input-icon"></i>
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="Repeat password" required autocomplete="new-password">
+                    <button type="button" class="password-toggle" title="Toggle password visibility">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: var(--space-2);">
+                Create Account
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Already have an account? <a href="login.html">Sign In</a></p>
+        </div>
+    </div>
+
+    <!-- Script imports -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

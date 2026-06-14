@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #0C1017;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CostReducer AI Dashboard - Cognitive FinOps AI routing and news portal.">
+    <title>Overview & Concept - CostReducer AI</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    
+    <!-- Theme Toggle Flash Prevention -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+                document.documentElement.style.backgroundColor = '#f8fafc';
+            } else {
+                document.documentElement.style.backgroundColor = '#0C1017';
+            }
+        })();
+    </script>
+
+    <!-- CSS Custom Properties & Core Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-primary text-primary">
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation Container -->
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" style="position: relative;">
+            <!-- Header Container -->
+            <header id="page-header" class="page-header"></header>
+
+            <!-- Solid White Loading Screen -->
+            <div id="page-skeleton" class="skeleton-overlay"></div>
+
+            <!-- Content Wrapper -->
+            <div id="main-content-wrapper" style="opacity: 1;">
+                <!-- MSN-Style Widgets Layout Grid -->
+                <div class="dashboard-widgets-layout">
+                    <!-- Right Panel: Main Dashboard News & Financial Widgets Grid -->
+                    <div class="dashboard-main-widgets">
+                    
+                    <!-- News Masonry Grid (Dynamic) -->
+                    <div class="news-grid" id="newsGrid"></div>  </div>
+
+                    <!-- STANDOUT SOLUTION CALLOUT BLOCK -->
+                    <div class="solution-block-card">
+                        <div class="solution-header">
+                            <div class="solution-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="solution-title">CostReducer AI Cognitive Gateway: The Definitive FinOps Solution</div>
+                        </div>
+                        <b class="text-secondary" style="font-size: var(--text-sm); line-height: var(--leading-relaxed); margin-bottom: var(--space-4);">
+                            As enterprise AI compute costs skyrocket and unoptimized prompt loops trigger massive budget overruns, <b>CostReducer AI</b> stands as the ultimate defense system. Acting as a smart, low-latency middleware proxy, it intercepts incoming API requests and resolves cost leakage at the root:
+                        </p>
+                        
+                        <div class="solution-grid">
+                            <!-- Feature 1 -->
+                            <div class="solution-item">
+                                <div class="solution-item-title"><i class="fas fa-compress" style="margin-right: 4px;"></i> Token Compression</div>
+                                <div class="solution-item-desc">
+                                    Intelligently compresses input prompts, removing filler syntax and whitespaces to slash baseline token weight by up to 70%.
+                                </div>
+                            </div>
+                            <!-- Feature 2 -->
+                            <div class="solution-item">
+                                <div class="solution-item-title"><i class="fas fa-route" style="margin-right: 4px;"></i> Cost Arbitrage Routing</div>
+                                <div class="solution-item-desc">
+                                    Dynamically routes tasks to specialized right-priced expert models (e.g. DeepSeek for logs, Mistral for SQL) based on prompt taxonomy.
+                                </div>
+                            </div>
+                            <!-- Feature 3 -->
+                            <div class="solution-item">
+                                <div class="solution-item-title"><i class="fas fa-shield-halved" style="margin-right: 4px;"></i> Non-Blocking Failover</div>
+                                <div class="solution-item-desc">
+                                    Orchestrated via Spring Boot WebFlux and Spring AI, delivering non-blocking fail-open operations with 100% gateway uptime.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: var(--space-5); display: flex; justify-content: flex-end;">
+                            <a href="terminal.html" class="btn btn-primary btn-sm" style="border-radius: var(--radius-md); padding: 8px 16px;">
+                                Open Code Terminal <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        </main>
+    </div>
+
+    <!-- ── Floating "Meet the Founder" FAB ── -->
+    <button id="founderFab" onclick="openFounderModal()" aria-label="Meet the Founder">
+        <div class="fab-avatar">VS</div>
+        <span class="fab-label">Meet the Founder</span>
+    </button>
+
+    <!-- ── Floating "Sign In" FAB (Shown only when guest) ── -->
+    <button id="signInFab" onclick="window.location.href='login.html'" aria-label="Sign In" style="display: none;">
+        <div class="fab-avatar"><i class="fas fa-sign-in-alt"></i></div>
+        <span class="fab-label">Sign In</span>
+    </button>
+
+    <!-- ── Founder Modal ── -->
+    <div id="founderModal" class="founder-modal-overlay" onclick="closeFounderModal(event)">
+        <div class="founder-modal-card" onclick="event.stopPropagation()">
+            <button class="founder-modal-close" onclick="closeFounderModal(event)" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- About Me heading -->
+            <h2 class="founder-about-title">About Me</h2>
+            <div class="founder-about-bar"></div>
+
+            <!-- Two-column: photo + bio -->
+            <div class="founder-about-body">
+                <!-- Left: Photo -->
+                <div class="founder-photo-col">
+                    <div class="founder-photo-frame">
+                        <img src="images/profile-photo.jpg" alt="Ved Shrimali" class="founder-photo-img">
+                    </div>
+                </div>
+
+                <!-- Right: Bio paragraphs -->
+                <div class="founder-bio-col">
+                    <p class="founder-bio-para">Hello! I'm <strong>Ved Shrimali</strong>, a passionate Java Backend Developer specializing in Spring Boot and microservices architecture. Currently pursuing B.Tech in Computer Science &amp; Engineering at Pandit Deendayal Energy University (PDEU), Gandhinagar.</p>
+
+                    <p class="founder-bio-para">My journey into backend development started with a fascination for how systems work at scale. I love building robust, efficient APIs and working with distributed systems. My expertise lies in Java, Spring Boot, JPA/Hibernate, and creating RESTful services that power modern applications.</p>
+
+                    <p class="founder-bio-para">I'm particularly interested in microservices architecture, system design, and integrating AI capabilities into backend systems — which led me to build <strong>CostReducer AI</strong>, a smart middleware proxy that optimizes LLM API costs in real time.</p>
+                </div>
+            </div>
+
+            <!-- Social links -->
+            <div class="founder-social-row">
+                <a href="https://www.linkedin.com/in/ved-shrimali-73aa58285/" target="_blank" rel="noopener noreferrer" class="founder-social-btn linkedin">
+                    <i class="fab fa-linkedin"></i> LinkedIn
+                </a>
+                <a href="https://ved1001.github.io/" target="_blank" rel="noopener noreferrer" class="founder-social-btn portfolio">
+                    <i class="fas fa-globe"></i> Portfolio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Newspaper & Tweet Reader Modal -->
+    <div id="readerModal" class="modal-overlay" onclick="closeReaderModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeReaderModal(event)">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="readerContent">
+                <!-- Injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/dashboard.js"></script>
+
+    <script>
+        function openFounderModal() {
+            document.getElementById('founderModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeFounderModal(e) {
+            if (!e || e.target === document.getElementById('founderModal') || e.currentTarget.classList.contains('founder-modal-close')) {
+                document.getElementById('founderModal').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeFounderModal({ target: document.getElementById('founderModal') });
+        });
+    </script>
+</body>
+</html>

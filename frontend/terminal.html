@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #0C1017;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CostReducer AI Code Terminal - Prompt Semantic Compression and Cost Arbitrage.">
+    <title>Code Terminal Console - CostReducer AI</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <!-- Theme Toggle Flash Prevention -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+                document.documentElement.style.backgroundColor = '#f8fafc';
+            } else {
+                document.documentElement.style.backgroundColor = '#0C1017';
+            }
+        })();
+    </script>
+    
+    <!-- CSS Custom Properties & Core Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .terminal-container {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: var(--space-6);
+            align-items: stretch;
+        }
+        
+        .code-textarea {
+            font-family: var(--font-mono);
+            background: var(--bg-input) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            font-size: var(--text-sm);
+            line-height: var(--leading-relaxed);
+            resize: vertical;
+            min-height: 150px;
+            width: 100%;
+            outline: none;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .code-textarea:focus {
+            border-color: var(--primary) !important;
+            box-shadow: var(--shadow-input-focus);
+        }
+        
+        .vault-card {
+            background: var(--bg-tertiary);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin-top: var(--space-4);
+        }
+        
+        .vault-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: var(--space-2);
+        }
+        .vault-title {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        .vault-body {
+            transition: max-height var(--transition-normal);
+            overflow: hidden;
+        }
+        .vault-body.collapsed {
+            max-height: 0;
+            margin-top: 0;
+        }
+        .vault-body.expanded {
+            max-height: 200px;
+            margin-top: var(--space-3);
+        }
+        
+        /* Speedometer Styles */
+        .speedometer-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            margin-bottom: var(--space-6);
+        }
+        
+        /* Diff columns */
+        .prompt-diff-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        .prompt-diff-window {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+        }
+        .diff-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: var(--space-2);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: var(--space-3);
+            font-size: var(--text-xs);
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+        }
+        .diff-body {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            line-height: var(--leading-relaxed);
+            white-space: pre-wrap;
+            min-height: 100px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        
+        /* Results Section Styling */
+        #outputTelemetry {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all var(--transition-slow);
+            display: none;
+        }
+        #outputTelemetry.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Pulsing Skeleton Loader */
+        .skeleton-loader {
+            display: none;
+            flex-direction: column;
+            gap: var(--space-4);
+            padding: var(--space-6);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-6);
+        }
+        .skeleton-block {
+            height: 20px;
+            background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+            background-size: 200% 100%;
+            animation: loading-pulse 1.5s infinite linear;
+            border-radius: var(--radius-sm);
+        }
+        @keyframes loading-pulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Strategy Cards Style */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        .strategy-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all var(--transition-normal);
+        }
+        .strategy-card.active-card {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+        .strategy-type {
+            font-size: var(--text-xs);
+            font-weight: var(--font-bold);
+            color: var(--primary-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-2);
+        }
+        .strategy-model {
+            font-size: var(--text-base);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+        .strategy-provider {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            margin-bottom: var(--space-3);
+        }
+        .strategy-cost {
+            font-size: var(--text-lg);
+            font-weight: var(--font-bold);
+            color: var(--success-light);
+            margin-bottom: var(--space-3);
+        }
+        .strategy-justification {
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+            line-height: var(--leading-relaxed);
+        }
+        
+        @media (max-width: 768px) {
+            .terminal-container {
+                grid-template-columns: 1fr;
+            }
+            .strategy-grid {
+                grid-template-columns: 1fr;
+            }
+            .prompt-diff-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="bg-primary text-primary">
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation Container -->
+        <aside id="sidebar" class="sidebar"></aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" style="position: relative;">
+            <!-- Header Container -->
+            <header id="page-header" class="page-header"></header>
+
+            <!-- Solid White Loading Screen -->
+            <div id="page-skeleton" class="skeleton-overlay"></div>
+
+            <!-- Content Wrapper -->
+            <div id="main-content-wrapper" style="opacity: 1;">
+                <div class="terminal-container">
+                
+                    <!-- Left Column: Input Form -->
+                    <div class="card" style="display: flex; flex-direction: column; height: 100%;">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-terminal" style="color: var(--primary-light); margin-right: var(--space-2);"></i> Inbound Query Optimizer</h3>
+                        </div>
+                        <div class="card-body" style="display: flex; flex-direction: column; flex: 1; padding: var(--space-5);">
+                            <form id="optimizeForm" novalidate style="display: flex; flex-direction: column; flex: 1; justify-content: space-between;">
+                                
+                                <div class="form-group">
+                                    <label class="form-label" for="providerSelect">Target Baseline Model Provider</label>
+                                    <div class="form-input-wrapper">
+                                        <i class="fas fa-robot input-icon"></i>
+                                        <select id="providerSelect" class="form-input" style="appearance: none; -webkit-appearance: none;">
+                                            <option value="CLAUDE">Claude (Anthropic)</option>
+                                            <option value="CHATGPT">ChatGPT (OpenAI)</option>
+                                            <option value="GEMINI">Gemini (Google)</option>
+                                            <option value="MISTRAL">Mistral AI</option>
+                                            <option value="DEEPSEEK">DeepSeek</option>
+                                            <option value="LLAMA">Llama (Meta)</option>
+                                            <option value="COHERE">Cohere</option>
+                                            <option value="GROK">Grok (xAI)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group" style="margin-top: var(--space-4); flex: 1; display: flex; flex-direction: column;">
+                                    <label class="form-label" for="promptTextarea">Input Prompt Query (Monospace Code/Text)</label>
+                                    
+                                    <!-- Premium Terminal Window Header -->
+                                    <div style="background: var(--bg-tertiary); border: 1px solid var(--border); border-bottom: none; border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">
+                                        <div style="display: flex; gap: 6px;">
+                                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+                                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+                                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+                                        </div>
+                                        <span style="font-weight: 600; letter-spacing: 0.05em; color: #94a3b8;">COSTREDUCER AI SECURE CONSOLE v1.0</span>
+                                        <span style="width: 42px;"></span>
+                                    </div>
+                                    
+                                    <textarea id="promptTextarea" class="code-textarea" style="border-top-left-radius: 0 !important; border-top-right-radius: 0 !important; flex: 1; min-height: 180px;" placeholder="Enter your enterprise raw prompt or application loops context here..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: var(--space-6);" id="optimizeBtn">
+                                    <i class="fas fa-bolt" style="margin-right: var(--space-2);"></i> Run CostReducer AI Optimization
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Stats & Speedometer -->
+                    <div style="display: flex; flex-direction: column; height: 100%;">
+                        <!-- Speedometer Widget -->
+                        <div class="speedometer-wrapper">
+                            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: var(--font-bold); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--space-3);">Arbitrage Efficiency</span>
+                            <svg width="200" height="125" viewBox="0 0 200 120">
+                                <!-- Dial Arc -->
+                                <path d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="var(--bg-tertiary)" stroke-width="12" stroke-linecap="round"/>
+                                <!-- Progress Arc -->
+                                <path id="gaugeProgressArc" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="url(#cyanGlow)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+                                <!-- Center Text -->
+                                <text x="100" y="80" text-anchor="middle" fill="var(--text-primary)" font-size="32" font-weight="bold" id="gaugeScoreText" font-family="'JetBrains Mono', monospace">0</text>
+                                <text x="100" y="102" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-weight="bold" letter-spacing="0.1em">ARBITRAGE SCORE</text>
+                                <defs>
+                                    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#0ea5e9"/>
+                                        <stop offset="100%" stop-color="#8b5cf6"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div id="dynamicDomainBadge" class="badge badge-primary" style="margin-top: var(--space-2); max-width: 100%; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Dynamic Expert Field</div>
+                        </div>
+
+                        <!-- Metrics list -->
+                        <div class="card" style="margin-bottom: 0; flex: 1; display: flex; flex-direction: column;">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-coins" style="margin-right: var(--space-2); color: var(--success-light);"></i> Financial Summary</h3>
+                            </div>
+                            <div class="card-body" style="padding: 0; display: flex; flex-direction: column; justify-content: space-between; flex: 1;">
+                                <div style="padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex: 1;">
+                                    <span class="text-secondary" style="font-size: var(--text-sm);">Selected Provider</span>
+                                    <span style="font-weight: var(--font-semibold); font-size: var(--text-sm);" id="summarySelectedProvider">-</span>
+                                </div>
+                                <div style="padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex: 1;">
+                                    <span class="text-secondary" style="font-size: var(--text-sm);">Raw Baseline Cost</span>
+                                    <span style="font-weight: var(--font-semibold); font-size: var(--text-sm); color: var(--danger-light);" id="summaryRawCost">$0.00</span>
+                                </div>
+                                <div style="padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex: 1;">
+                                    <span class="text-secondary" style="font-size: var(--text-sm);">Optimized Cost</span>
+                                    <span style="font-weight: var(--font-semibold); font-size: var(--text-sm); color: var(--success-light);" id="summaryOptimizedCost">$0.00</span>
+                                </div>
+                                <div style="padding: var(--space-4) var(--space-5); display: flex; justify-content: space-between; align-items: center; flex: 1;">
+                                    <span class="text-secondary" style="font-size: var(--text-sm); font-weight: var(--font-semibold);">Token Savings Ratio</span>
+                                    <span class="badge badge-success" id="summarySavingsPercent">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Results (Full Width) -->
+                <div style="margin-top: var(--space-6);">
+                    <!-- Pulsing Skeleton Loader -->
+                    <div class="skeleton-loader" id="skeletonLoader">
+                        <div class="skeleton-block" style="width: 40%; height: 24px;"></div>
+                        <div class="skeleton-block" style="width: 90%; height: 60px;"></div>
+                        <div class="skeleton-block" style="width: 70%; height: 16px;"></div>
+                        <div class="skeleton-block" style="width: 80%; height: 20px;"></div>
+                    </div>
+
+                    <!-- Dynamic Output Telemetry -->
+                    <div id="outputTelemetry">
+                        
+                        <!-- Side-by-side prompt Diff -->
+                        <div class="prompt-diff-grid">
+                            <div class="prompt-diff-window">
+                                <div class="diff-header">
+                                    <span>ORIGINAL RAW PROMPT</span>
+                                    <span class="badge badge-primary" id="rawTokensCount">0 tokens</span>
+                                </div>
+                                <div class="diff-body" id="rawPromptText"></div>
+                            </div>
+                            <div class="prompt-diff-window" style="border-color: var(--success-hover);">
+                                <div class="diff-header" style="color: var(--success-light);">
+                                    <span>OPTIMIZED COMPRESSED PROMPT</span>
+                                    <span class="badge badge-success" id="optimizedTokensCount">0 tokens</span>
+                                </div>
+                                <div class="diff-body" id="optimizedPromptText" style="color: var(--success-light);"></div>
+                            </div>
+                        </div>
+
+                        <!-- Routing Strategy Recommendation Cards -->
+                        <h3 class="quick-actions-title" style="margin-bottom: var(--space-3);">Allocated Strategy Options</h3>
+                        <div class="strategy-grid">
+                            <!-- Budget Savior -->
+                            <div class="strategy-card" id="budgetSaviorCard">
+                                <div>
+                                    <div class="strategy-type">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: #38bdf8; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M12 2c0 5.523 4.477 10 10 10-5.523 0-10 4.477-10 10 0-5.523-4.477-10-10-10 5.523 0 10-4.477 10-10z"/></svg>
+                                        <span>Budget Savior</span>
+                                    </div>
+                                    <div class="strategy-model" id="budgetModel">gemini-1.5-flash</div>
+                                    <div class="strategy-provider" id="budgetProvider">Provider: GEMINI</div>
+                                </div>
+                                <div>
+                                    <div class="strategy-cost" id="budgetCost">$0.0000042</div>
+                                    <div class="strategy-justification" id="budgetJustification">Lowest latency cost.</div>
+                                </div>
+                            </div>
+
+                            <!-- Smart Balanced -->
+                            <div class="strategy-card active-card" id="smartBalancedCard">
+                                <div>
+                                    <div class="strategy-type" style="color: var(--secondary-light);">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: #0ea5e9; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M12 2L2 7v6c0 5.52 4.48 10 10 10s10-4.48 10-10V7L12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                                        <span>Smart Balanced</span>
+                                    </div>
+                                    <div class="strategy-model" id="balancedModel">deepseek-chat</div>
+                                    <div class="strategy-provider" id="balancedProvider">Provider: DEEPSEEK</div>
+                                </div>
+                                <div>
+                                    <div class="strategy-cost" id="balancedCost" style="color: var(--secondary-light);">$0.0000088</div>
+                                    <div class="strategy-justification" id="balancedJustification">Optimal task expert fit.</div>
+                                </div>
+                            </div>
+
+                            <!-- Task Powerhouse -->
+                            <div class="strategy-card" id="taskPowerhouseCard">
+                                <div>
+                                    <div class="strategy-type" style="color: var(--accent-light);">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color: #d97706; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+                                        <span>Task Powerhouse</span>
+                                    </div>
+                                    <div class="strategy-model" id="powerhouseModel">claude-3-5-sonnet</div>
+                                    <div class="strategy-provider" id="powerhouseProvider">Provider: CLAUDE</div>
+                                </div>
+                                <div>
+                                    <div class="strategy-cost" id="powerhouseCost" style="color: var(--accent-light);">$0.0002130</div>
+                                    <div class="strategy-justification" id="powerhouseJustification">Elite reasoning strength.</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Comprehensive Model Cost Comparison Chart -->
+                        <div class="card" style="margin-top: var(--space-6); background: var(--bg-secondary); border: 1px solid var(--border);">
+                            <div class="card-header" style="border-bottom: 1px solid var(--border);">
+                                <h3 class="card-title" style="font-size: var(--text-md); font-weight: var(--font-bold);"><i class="fas fa-chart-simple" style="margin-right: var(--space-2); color: var(--primary-light);"></i> Comprehensive Model Cost Comparison</h3>
+                            </div>
+                            <div class="card-body" style="padding: var(--space-5);">
+                                <div style="background: var(--primary-glow); border-left: 3px solid var(--primary); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); font-size: var(--text-xs); color: var(--text-primary); margin-bottom: var(--space-5); font-weight: var(--font-medium); line-height: 1.45; display: flex; align-items: center; gap: var(--space-3);">
+                                    <i class="fas fa-info-circle" style="color: var(--primary-light); font-size: 14px; flex-shrink: 0;"></i>
+                                    <span>Compare calculated transaction costs (Original vs. Optimized prompt tokens) across all supported frontier models.</span>
+                                </div>
+                                
+                                <div id="modelCostComparisonBars" style="display: flex; flex-direction: column; gap: var(--space-4);">
+                                    <!-- Bars will be dynamically injected here by terminal.js -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+        </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/terminal.js"></script>
+</body>
+</html>

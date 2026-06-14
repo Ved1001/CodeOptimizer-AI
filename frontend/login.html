@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #0C1017;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to CostReducer AI cost optimization router dashboard.">
+    <title>Login - CostReducer AI</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <!-- Theme Toggle Flash Prevention -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+                document.documentElement.style.backgroundColor = '#f8fafc';
+            } else {
+                document.documentElement.style.backgroundColor = '#0C1017';
+            }
+        })();
+    </script>
+    
+    <!-- CSS Custom Reset & Stylesheets -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-shield-halved"></i>
+                <span>CostReducer AI</span>
+            </div>
+            <p id="authHeaderSubtitle" class="auth-subtitle">Sign in to optimize your AI model expenses</p>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form" novalidate>
+            <!-- Email Input Group -->
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" class="form-input" placeholder="name@example.com" required autocomplete="email">
+                </div>
+            </div>
+            
+            <!-- Password Input Group -->
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-1);">
+                    <label for="password" class="form-label" style="margin-bottom: 0;">Password</label>
+                    <a href="#" id="forgotPasswordLink" style="font-size: var(--text-xs); color: var(--primary-light); text-decoration: none;">Forgot Password?</a>
+                </div>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" title="Toggle password visibility">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: var(--space-2);">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Forgot Password Form (Hidden by default) -->
+        <form id="forgotPasswordForm" class="auth-form" novalidate style="display: none;">
+            <!-- Email Input Group -->
+            <div class="form-group">
+                <label for="forgotEmail" class="form-label">Email Address</label>
+                <div style="display: flex; gap: var(--space-2); align-items: stretch;">
+                    <div class="form-input-wrapper" style="flex-grow: 1;">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="forgotEmail" class="form-input" placeholder="name@example.com" required autocomplete="email">
+                    </div>
+                    <button type="button" id="requestForgotOtpBtn" class="btn btn-secondary" style="white-space: nowrap; height: 46px; min-height: 46px;">
+                        Request OTP
+                    </button>
+                </div>
+            </div>
+
+            <!-- Verification Code Input Group -->
+            <div class="form-group">
+                <label for="forgotCode" class="form-label">Verification Code</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-shield-alt input-icon"></i>
+                    <input type="text" id="forgotCode" class="form-input" placeholder="Enter 6-digit code" required autocomplete="off" maxlength="6">
+                </div>
+            </div>
+
+            <!-- New Password Input Group -->
+            <div class="form-group">
+                <label for="forgotNewPassword" class="form-label">New Password</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="forgotNewPassword" class="form-input" placeholder="New password (min 6 characters)" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <!-- Confirm New Password Input Group -->
+            <div class="form-group">
+                <label for="forgotConfirmNewPassword" class="form-label">Confirm New Password</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-lock-open input-icon"></i>
+                    <input type="password" id="forgotConfirmNewPassword" class="form-input" placeholder="Confirm new password" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: var(--space-2);">
+                Reset Password
+            </button>
+
+            <!-- Back to login -->
+            <div style="text-align: center; margin-top: var(--space-2);">
+                <a href="#" id="backToLoginLink" style="font-size: var(--text-sm); color: var(--primary-light); text-decoration: none;">Back to Sign In</a>
+            </div>
+        </form>
+        
+        <div class="auth-footer">
+            <p id="authFooterText">Don't have an account? <a href="register.html">Register here</a></p>
+        </div>
+    </div>
+
+    <!-- Script imports -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
