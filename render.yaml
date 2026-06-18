@@ -1,0 +1,29 @@
+services:
+  # 1. Auth Service
+  - type: web
+    name: auth-service
+    runtime: docker
+    dockerfilePath: auth-service/Dockerfile
+    plan: free
+    envVars:
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DATABASE
+        sync: false
+      - key: MYSQL_PORT
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+
+  # 2. API Gateway
+  - type: web
+    name: api-gateway
+    runtime: docker
+    dockerfilePath: api-gateway/Dockerfile
+    plan: free
