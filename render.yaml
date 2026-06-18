@@ -1,9 +1,8 @@
 services:
-  # 1. Auth Service
   - type: web
     name: auth-service
     runtime: docker
-    context: ./auth-service
+    context: ./auth-service        # Docker builds FROM this folder
     dockerfilePath: ./auth-service/Dockerfile
     plan: free
     envVars:
@@ -22,10 +21,9 @@ services:
       - key: GMAIL_APP_PASSWORD
         sync: false
 
-  # 2. API Gateway
   - type: web
     name: api-gateway
     runtime: docker
-    context: ./api-gateway
-    dockerfilePath: ./api-gateway/Dockerfile
+    context: ./api-dateway          # ← fix typo to match actual folder name
+    dockerfilePath: ./api-dateway/Dockerfile   # ← same here
     plan: free
