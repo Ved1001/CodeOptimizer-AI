@@ -1,0 +1,30 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE and Editor Files
+.idea/
+**/.idea/
+.vscode/
+**/.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+Thumbs.db
+
+# Java & Maven Build Output
+**/target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+
+# Logs
+*.log
+**/logs/

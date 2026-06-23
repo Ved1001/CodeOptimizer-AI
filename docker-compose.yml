@@ -45,7 +45,7 @@ services:
     ports:
       - "3333:3333"
     environment:
-      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://service-registry:8761/eureka/
     depends_on:
       service-registry:
         condition: service_healthy
@@ -62,7 +62,11 @@ services:
       - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/auth_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=Jayambe@11
+      - GMAIL_USER=${GMAIL_USER:-vedshrimali2006@gmail.com}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
       - MAIL_HOST=smtp.gmail.com
       - MAIL_PORT=587
     depends_on:
@@ -82,8 +86,9 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://service-registry:8761/eureka/
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://service-registry:8761/eureka/
       - LLMESH_BUDGET-SERVICE_BASE-URL=http://budget-service:9091
+      - GROQ_API_KEY=${GROQ_API_KEY}
     depends_on:
       service-registry:
         condition: service_healthy

@@ -46,7 +46,7 @@
     font-size: 18px;
     color: #fff;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(196, 143, 71, 0.3);
 }
 
 .sidebar-logo-text {
@@ -103,7 +103,7 @@
 
 .sidebar-link:hover {
     color: var(--text-primary);
-    background: rgba(99, 102, 241, 0.06);
+    background: rgba(196, 143, 71, 0.06);
 }
 
 .sidebar-link.active {

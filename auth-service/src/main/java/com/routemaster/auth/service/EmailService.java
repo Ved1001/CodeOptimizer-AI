@@ -36,16 +36,18 @@ public class EmailService {
     }
 
     private void sendEmail(String to, String subject, String body) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
-            message.setFrom("llmesh.portal@gmail.com");
+        new Thread(() -> {
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(to);
+                message.setSubject(subject);
+                message.setText(body);
+                message.setFrom("llmesh.portal@gmail.com");
 
-            mailSender.send(message);
-        } catch (Exception ex) {
-            // Suppress exception / prevent system crashes when SMTP is offline
-        }
+                mailSender.send(message);
+            } catch (Exception ex) {
+                // Suppress exception / prevent system crashes when SMTP is offline
+            }
+        }).start();
     }
 }

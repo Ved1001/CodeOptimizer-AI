@@ -31,16 +31,14 @@ const components = {
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                </button>`
-            : `<button class="sidebar-logout" id="loginBtn" style="background: linear-gradient(135deg, #6366f1, #7c3aed); color: white; border: none; font-weight: 600;">
+            : `<button class="sidebar-logout" id="loginBtn" style="background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; font-weight: 600;">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>Sign In</span>
                </button>`;
 
         sidebarEl.innerHTML = `
             <div class="sidebar-logo">
-                <div class="sidebar-logo-icon">
-                    <i class="fas fa-shield-halved"></i>
-                </div>
+                <img src="images/favicon.svg" alt="CostReducer AI" class="sidebar-logo-img" style="width: 28px; height: 28px; object-fit: contain; margin-right: var(--space-2);">
                 <div class="sidebar-logo-text">CostReducer AI</div>
             </div>
             <div class="sidebar-nav">

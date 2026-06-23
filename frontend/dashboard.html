@@ -1,96 +1,292 @@
 <!DOCTYPE html>
-<html lang="en" style="background-color: #0C1017;">
+<html lang="en" style="background-color: hsl(16, 45%, 6%);">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CostReducer AI Dashboard - Cognitive FinOps AI routing and news portal.">
-    <title>Overview & Concept - CostReducer AI</title>
-    <link rel="icon" type="image/png" href="images/favicon.png">
-    
+    <meta title="CostReducer AI">
+    <title>Dashboard - CostReducer AI</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+
     <!-- Theme Toggle Flash Prevention -->
     <script>
         (function() {
             const theme = localStorage.getItem('theme') || 'dark';
             if (theme === 'light') {
                 document.documentElement.classList.add('light-theme');
-                document.documentElement.style.backgroundColor = '#f8fafc';
+                document.documentElement.style.backgroundColor = '#FAF7F2';
             } else {
-                document.documentElement.style.backgroundColor = '#0C1017';
+                document.documentElement.style.backgroundColor = '#180d09';
             }
         })();
     </script>
 
-    <!-- CSS Custom Properties & Core Styles -->
+    <!-- Extension and Popup Injected Element Safeguard -->
+    <script>
+        (function() {
+            const allowedIds = ['dashNavbar', 'founderFab', 'signInFab', 'founderModal', 'readerModal'];
+            const allowedClasses = ['sidebar-toggle', 'sidebar-overlay', 'toast-container'];
+
+            function isAllowed(node) {
+                if (node.nodeType !== Node.ELEMENT_NODE) return true;
+                const tagName = node.tagName.toLowerCase();
+                if (tagName === 'script' || tagName === 'style' || tagName === 'main' || tagName === 'nav' || tagName === 'link' || tagName === 'html' || tagName === 'head' || tagName === 'body' || tagName === 'title' || tagName === 'meta') {
+                    return true;
+                }
+                
+                // Walk up the tree to see if it is inside main, nav, head, or allowed modals/components
+                let current = node;
+                while (current && current.nodeType === Node.ELEMENT_NODE && current !== document.documentElement) {
+                    const tag = current.tagName.toLowerCase();
+                    if (tag === 'main' || tag === 'nav' || tag === 'head') {
+                        return true;
+                    }
+                    if (allowedIds.includes(current.id)) {
+                        return true;
+                    }
+                    if (current.classList && Array.from(current.classList).some(cls => allowedClasses.includes(cls))) {
+                        return true;
+                    }
+                    current = current.parentNode;
+                }
+                return false;
+            }
+
+            // Set up MutationObserver to watch for additions to the entire DOM tree
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            if (!isAllowed(node)) {
+                                console.warn('CostReducer Safeguard: Removing unauthorized injected element:', node);
+                                node.remove();
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Start observing immediately on document element
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+
+            // Initial cleanup once DOM is fully loaded
+            document.addEventListener('DOMContentLoaded', () => {
+                const cleanup = (root) => {
+                    Array.from(root.children).forEach(node => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            if (!isAllowed(node)) {
+                                console.warn('CostReducer Safeguard: Removing pre-existing unauthorized element:', node);
+                                node.remove();
+                            } else {
+                                cleanup(node);
+                            }
+                        }
+                    });
+                };
+                cleanup(document.documentElement);
+            });
+        })();
+    </script>
+
+    <!-- CSS -->
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/responsive.css">
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-primary text-primary">
 
-    <div class="app-layout">
-        <!-- Sidebar Navigation Container -->
-        <aside id="sidebar" class="sidebar"></aside>
+    <!-- ── Floating Top Navbar ── -->
+    <nav class="dash-navbar" id="dashNavbar">
+        <div class="nav-inner">
+            <a href="dashboard.html" class="nav-brand">
+                <img src="images/favicon.svg" alt="CostReducer AI" class="nav-logo">
+                <span>CostReducer AI</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="dashboard.html" class="nav-link active">Overview</a>
+                <a href="terminal.html" class="nav-link">Terminal</a>
+                <a href="profile.html" class="nav-link">Account</a>
+                <span id="navAuthLink"></span>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-theme-btn" id="themeToggleBtn" title="Toggle Theme">
+                    <i class="fas fa-sun" id="themeToggleIcon"></i>
+                </button>
+                <button class="nav-menu-btn" id="navMenuBtn" onclick="document.getElementById('navLinks').classList.toggle('nav-open')">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
 
-        <!-- Main Content Area -->
-        <main class="main-content" style="position: relative;">
-            <!-- Header Container -->
-            <header id="page-header" class="page-header"></header>
+    <!-- Main Content Area (full screen, no sidebar) -->
+    <main style="width: 100%; overflow-x: hidden;">
 
-            <!-- Solid White Loading Screen -->
-            <div id="page-skeleton" class="skeleton-overlay"></div>
+            <!-- ════════════════════════════════════════════════
+                 SECTION 1: HERO — Full Viewport
+                 ════════════════════════════════════════════════ -->
+            <section class="dash-section dash-hero">
+                <!-- Decorative corner bracket frames -->
+                <div class="hero-frame">
+                    <div class="hero-frame-inner"></div>
+                </div>
 
-            <!-- Content Wrapper -->
-            <div id="main-content-wrapper" style="opacity: 1;">
-                <!-- MSN-Style Widgets Layout Grid -->
-                <div class="dashboard-widgets-layout">
-                    <!-- Right Panel: Main Dashboard News & Financial Widgets Grid -->
-                    <div class="dashboard-main-widgets">
-                    
-                    <!-- News Masonry Grid (Dynamic) -->
-                    <div class="news-grid" id="newsGrid"></div>  </div>
+                <div class="hero-content">
+                    <div class="hero-accent-line"></div>
+                    <div class="hero-tagline">AI Cost Optimization · FinOps Middleware</div>
 
-                    <!-- STANDOUT SOLUTION CALLOUT BLOCK -->
+                    <h1 class="hero-title">
+                        <span class="gold">Where AI Cost</span><br>
+                        Reduction Meets<br>
+                        Excellence
+                    </h1>
+
+                    <p class="hero-subtitle">
+                        A cognitive gateway that intercepts your LLM API calls, compresses tokens by up to 70%,
+                        and routes tasks to the most cost-efficient model — saving enterprises thousands monthly.
+                    </p>
+
+                    <div class="hero-cta-group">
+                        <a href="terminal.html" class="hero-btn hero-btn-primary">
+                            Open Terminal <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="#insights" class="hero-btn hero-btn-outline">
+                            View Insights
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-scroll-indicator">
+                    <span>Scroll</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════
+                 SECTION 2: ABOUT — Split Layout
+                 ════════════════════════════════════════════════ -->
+            <section class="dash-section dash-about" id="about">
+                <div class="section-container">
+                    <div class="about-grid">
+                        <!-- Left: Quote Card -->
+                        <div class="about-quote-card">
+                            <blockquote class="about-quote-text">
+                                73% of all enterprise LLM tokens are pure waste — redundant syntax, schema bloat,
+                                and uncompressed system prompts that inflate every single API call.
+                            </blockquote>
+                            <div class="about-quote-author">
+                                Gartner Research · 2026 Enterprise AI Cost Analysis
+                            </div>
+                        </div>
+
+                        <!-- Right: About Text -->
+                        <div class="about-text-col">
+                            <div class="section-label">About the Platform</div>
+                            <h2 class="section-title">CostReducer AI</h2>
+                            <div class="section-divider"></div>
+
+                            <p class="about-description">
+                                <strong>CostReducer AI</strong> is a smart, low-latency middleware proxy that sits between
+                                your application and LLM providers. It intercepts incoming API requests and resolves
+                                cost leakage at the root — before tokens ever reach the billing endpoint.
+                            </p>
+                            <p class="about-description">
+                                Built on <strong>Spring Boot</strong> microservices architecture with a <strong>Service Registry</strong>,
+                                <strong>API Gateway</strong>, and intelligent <strong>Routing Engine</strong>, it delivers
+                                enterprise-grade prompt compression, taxonomy-based model routing, and real-time cost analytics.
+                            </p>
+
+                            <div class="expertise-tags">
+                                <span class="expertise-tag">Token Compression</span>
+                                <span class="expertise-tag">Cost Arbitrage</span>
+                                <span class="expertise-tag">Smart Routing</span>
+                                <span class="expertise-tag">FinOps Middleware</span>
+                                <span class="expertise-tag">Spring Boot</span>
+                                <span class="expertise-tag">Microservices</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════
+                 SECTION 3: FEATURED INSIGHTS — Instagram Reel Style
+                 ════════════════════════════════════════════════ -->
+            <section class="dash-section dash-insights" id="insights">
+                <div class="section-container">
+                    <div class="section-label">Watch & Learn</div>
+                    <h2 class="section-title">Featured Insights</h2>
+                    <div class="section-divider"></div>
+                    <p class="about-description" style="max-width: 600px; margin-bottom: var(--space-8);">
+                        Real-time coverage of AI infrastructure spend, token economics,
+                        and the cost optimization landscape.
+                    </p>
+
+                    <div class="reel-grid" id="reelsGrid">
+                        <!-- Populated by dashboard.js -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════
+                 SECTION 4: EDITORIAL CARDS — Numbered Insights
+                 ════════════════════════════════════════════════ -->
+            <section class="dash-section dash-editorial" id="editorial">
+                <div class="section-container">
+                    <div class="section-label">Deep Dives</div>
+                    <h2 class="section-title">Industry Intelligence</h2>
+                    <div class="section-divider"></div>
+
+                    <div class="editorial-grid" id="editorialGrid">
+                        <!-- Populated by dashboard.js -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════
+                 SECTION 5: SOLUTION BLOCK
+                 ════════════════════════════════════════════════ -->
+            <section class="dash-section dash-solution" id="solution">
+                <div class="section-container">
                     <div class="solution-block-card">
                         <div class="solution-header">
                             <div class="solution-icon">
                                 <i class="fas fa-lightbulb"></i>
                             </div>
-                            <div class="solution-title">CostReducer AI Cognitive Gateway: The Definitive FinOps Solution</div>
+                            <div class="solution-title">The Definitive FinOps Solution</div>
                         </div>
-                        <b class="text-secondary" style="font-size: var(--text-sm); line-height: var(--leading-relaxed); margin-bottom: var(--space-4);">
-                            As enterprise AI compute costs skyrocket and unoptimized prompt loops trigger massive budget overruns, <b>CostReducer AI</b> stands as the ultimate defense system. Acting as a smart, low-latency middleware proxy, it intercepts incoming API requests and resolves cost leakage at the root:
+                        <p class="solution-description" style="font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--leading-relaxed); margin-bottom: var(--space-4);">
+                            As enterprise AI compute costs skyrocket and unoptimized prompt loops trigger massive budget overruns,
+                            <strong>CostReducer AI</strong> stands as the ultimate defense system. Acting as a smart, low-latency
+                            middleware proxy, it intercepts incoming API requests and resolves cost leakage at the root:
                         </p>
-                        
+
                         <div class="solution-grid">
-                            <!-- Feature 1 -->
                             <div class="solution-item">
                                 <div class="solution-item-title"><i class="fas fa-compress" style="margin-right: 4px;"></i> Token Compression</div>
                                 <div class="solution-item-desc">
                                     Intelligently compresses input prompts, removing filler syntax and whitespaces to slash baseline token weight by up to 70%.
                                 </div>
                             </div>
-                            <!-- Feature 2 -->
                             <div class="solution-item">
                                 <div class="solution-item-title"><i class="fas fa-route" style="margin-right: 4px;"></i> Cost Arbitrage Routing</div>
                                 <div class="solution-item-desc">
-                                    Dynamically routes tasks to specialized right-priced expert models (e.g. DeepSeek for logs, Mistral for SQL) based on prompt taxonomy.
+                                    Dynamically routes tasks to specialized right-priced expert models based on prompt taxonomy and complexity analysis.
                                 </div>
                             </div>
-                            <!-- Feature 3 -->
                             <div class="solution-item">
                                 <div class="solution-item-title"><i class="fas fa-shield-halved" style="margin-right: 4px;"></i> Non-Blocking Failover</div>
                                 <div class="solution-item-desc">
-                                    Orchestrated via Spring Boot WebFlux and Spring AI, delivering non-blocking fail-open operations with 100% gateway uptime.
+                                    Orchestrated via Spring Boot WebFlux, delivering non-blocking fail-open operations with 100% gateway uptime.
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div style="margin-top: var(--space-5); display: flex; justify-content: flex-end;">
                             <a href="terminal.html" class="btn btn-primary btn-sm" style="border-radius: var(--radius-md); padding: 8px 16px;">
                                 Open Code Terminal <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
@@ -98,12 +294,129 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-        </div>
+            <!-- ════════════════════════════════════════════════
+                 SECTION 6: AI PROVIDERS — Horizontal Showcase
+                 ════════════════════════════════════════════════ -->
+            <section class="dash-section dash-providers" id="providers">
+                <div class="section-container">
+                    <div class="section-label">Ecosystem</div>
+                    <h2 class="section-title">Supported AI Providers</h2>
+                    <div class="section-divider"></div>
+                    <p class="about-description" style="max-width: 640px; margin-bottom: var(--space-8);">
+                        CostReducer intelligently routes across these providers, selecting the optimal model
+                        for each task based on complexity, cost, and latency requirements.
+                    </p>
+
+                    <div class="providers-marquee">
+                        <div class="providers-track">
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #10a37f, #0d8c6d); border: none; color: #fff;">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="provider-name">OpenAI</div>
+                                <div class="provider-models">GPT-4o · GPT-4o Mini</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #d97706, #b45309); border: none; color: #fff;">
+                                    <i class="fas fa-shield-halved"></i>
+                                </div>
+                                <div class="provider-name">Anthropic</div>
+                                <div class="provider-models">Claude Sonnet · Haiku</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #4285f4, #1a73e8); border: none; color: #fff;">
+                                    <i class="fas fa-gem"></i>
+                                </div>
+                                <div class="provider-name">Google</div>
+                                <div class="provider-models">Gemini Pro · Flash</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #f97316, #ea580c); border: none; color: #fff;">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="provider-name">Groq</div>
+                                <div class="provider-models">Llama 3.1 · Mixtral</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; color: #fff;">
+                                    <i class="fas fa-rocket"></i>
+                                </div>
+                                <div class="provider-name">Mistral</div>
+                                <div class="provider-models">Mistral Large · Small</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); border: none; color: #fff;">
+                                    <i class="fas fa-water"></i>
+                                </div>
+                                <div class="provider-name">DeepSeek</div>
+                                <div class="provider-models">DeepSeek V3 · Coder</div>
+                            </div>
+                            <!-- Duplicated cards for seamless infinite scroll -->
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #10a37f, #0d8c6d); border: none; color: #fff;">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="provider-name">OpenAI</div>
+                                <div class="provider-models">GPT-4o · GPT-4o Mini</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #d97706, #b45309); border: none; color: #fff;">
+                                    <i class="fas fa-shield-halved"></i>
+                                </div>
+                                <div class="provider-name">Anthropic</div>
+                                <div class="provider-models">Claude Sonnet · Haiku</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #4285f4, #1a73e8); border: none; color: #fff;">
+                                    <i class="fas fa-gem"></i>
+                                </div>
+                                <div class="provider-name">Google</div>
+                                <div class="provider-models">Gemini Pro · Flash</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #f97316, #ea580c); border: none; color: #fff;">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="provider-name">Groq</div>
+                                <div class="provider-models">Llama 3.1 · Mixtral</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; color: #fff;">
+                                    <i class="fas fa-rocket"></i>
+                                </div>
+                                <div class="provider-name">Mistral</div>
+                                <div class="provider-models">Mistral Large · Small</div>
+                            </div>
+                            <div class="provider-card">
+                                <div class="provider-icon" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); border: none; color: #fff;">
+                                    <i class="fas fa-water"></i>
+                                </div>
+                                <div class="provider-name">DeepSeek</div>
+                                <div class="provider-models">DeepSeek V3 · Coder</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════
+                 FOOTER
+                 ════════════════════════════════════════════════ -->
+            <footer class="dash-section" style="padding: var(--space-8) 0; border-top: 1px solid var(--border);">
+                <div class="section-container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+                    <div style="display: flex; align-items: center; gap: var(--space-3); font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--primary);">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>CostReducer AI</span>
+                    </div>
+                    <div style="font-size: var(--text-xs); color: var(--text-muted);">
+                        Built by <strong style="color: var(--primary-light);">Ved Shrimali</strong> · PDEU '27 
+                    </div>
+                </div>
+            </footer>
 
         </main>
-    </div>
 
     <!-- ── Floating "Meet the Founder" FAB ── -->
     <button id="founderFab" onclick="openFounderModal()" aria-label="Meet the Founder">
@@ -124,30 +437,22 @@
                 <i class="fas fa-times"></i>
             </button>
 
-            <!-- About Me heading -->
             <h2 class="founder-about-title">About Me</h2>
             <div class="founder-about-bar"></div>
 
-            <!-- Two-column: photo + bio -->
             <div class="founder-about-body">
-                <!-- Left: Photo -->
                 <div class="founder-photo-col">
                     <div class="founder-photo-frame">
                         <img src="images/profile-photo.jpg" alt="Ved Shrimali" class="founder-photo-img">
                     </div>
                 </div>
-
-                <!-- Right: Bio paragraphs -->
                 <div class="founder-bio-col">
                     <p class="founder-bio-para">Hello! I'm <strong>Ved Shrimali</strong>, a passionate Java Backend Developer specializing in Spring Boot and microservices architecture. Currently pursuing B.Tech in Computer Science &amp; Engineering at Pandit Deendayal Energy University (PDEU), Gandhinagar.</p>
-
-                    <p class="founder-bio-para">My journey into backend development started with a fascination for how systems work at scale. I love building robust, efficient APIs and working with distributed systems. My expertise lies in Java, Spring Boot, JPA/Hibernate, and creating RESTful services that power modern applications.</p>
-
-                    <p class="founder-bio-para">I'm particularly interested in microservices architecture, system design, and integrating AI capabilities into backend systems — which led me to build <strong>CostReducer AI</strong>, a smart middleware proxy that optimizes LLM API costs in real time.</p>
+                    <p class="founder-bio-para">My journey into backend development started with a fascination for how systems work at scale. I love building robust, efficient APIs and working with distributed systems.</p>
+                    <p class="founder-bio-para">I'm particularly interested in microservices architecture, system design, and integrating AI capabilities into backend systems — which led me to build <strong>CostReducer AI</strong>.</p>
                 </div>
             </div>
 
-            <!-- Social links -->
             <div class="founder-social-row">
                 <a href="https://www.linkedin.com/in/ved-shrimali-73aa58285/" target="_blank" rel="noopener noreferrer" class="founder-social-btn linkedin">
                     <i class="fab fa-linkedin"></i> LinkedIn
@@ -159,15 +464,13 @@
         </div>
     </div>
 
-    <!-- Newspaper & Tweet Reader Modal -->
+    <!-- Article Reader Modal -->
     <div id="readerModal" class="modal-overlay" onclick="closeReaderModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close-btn" onclick="closeReaderModal(event)">
                 <i class="fas fa-times"></i>
             </button>
-            <div id="readerContent">
-                <!-- Injected dynamically -->
-            </div>
+            <div id="readerContent"></div>
         </div>
     </div>
 

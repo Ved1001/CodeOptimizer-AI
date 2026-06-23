@@ -42,11 +42,11 @@
 .btn-primary {
     background: linear-gradient(135deg, var(--primary), var(--accent));
     color: #fff;
-    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.25);
+    box-shadow: 0 2px 12px rgba(196, 143, 71, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
-    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 20px rgba(196, 143, 71, 0.4);
     transform: translateY(-1px);
 }
 
@@ -307,7 +307,7 @@ textarea.form-input {
 }
 
 .table tbody tr:hover {
-    background: rgba(99, 102, 241, 0.04);
+    background: rgba(196, 143, 71, 0.04);
 }
 
 .table tbody tr:last-child td {
@@ -905,8 +905,8 @@ textarea.form-input {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 3px solid rgba(99, 102, 241, 0.15);
-    border-top-color: #6366f1;
+    border: 3px solid rgba(196, 143, 71, 0.15);
+    border-top-color: var(--primary);
     animation: skeletonSpin 0.8s linear infinite;
 }
 

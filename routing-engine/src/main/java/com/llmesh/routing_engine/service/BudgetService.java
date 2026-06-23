@@ -3,6 +3,7 @@ package com.llmesh.routing_engine.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,6 +28,9 @@ public class BudgetService {
     /** Flat platform fee for each analyze-and-advise call (in microcents) */
     public static final long ANALYSIS_FEE_MICROCENTS = 50L;
 
+    @Value("${llmesh.budget-service.enabled:false}")
+    private boolean enabled;
+
     private final WebClient budgetClient;
 
     public BudgetService(@Qualifier("budgetWebClient") WebClient budgetClient) {
@@ -47,6 +51,11 @@ public class BudgetService {
      * @return Mono<BudgetResult> — authorized flag + remaining balance + message
      */
     public Mono<BudgetResult> checkAndCharge(String username) {
+        if (!enabled) {
+            log.info("[Budget] Service disabled. Bypassing check for user={}", username);
+            return Mono.just(new BudgetResult(true, -1L, "Budget service disabled"));
+        }
+
         Map<String, Object> requestPayload = Map.of(
                 "username",        username,
                 "amountMicrocents", ANALYSIS_FEE_MICROCENTS

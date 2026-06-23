@@ -63,24 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Call Auth API
-                let data;
-                try {
-                    data = await api.post(CONFIG.AUTH_API, '/auth/login', { email, password });
-                } catch (netError) {
-                    if (netError.status) {
-                        throw netError;
-                    }
-                    console.warn("Auth API offline. Entering Sandbox Demo Mode.", netError);
-                    const prefix = email.split('@')[0];
-                    const formattedName = prefix.charAt(0).toUpperCase() + prefix.slice(1);
-                    data = {
-                        token: "mock-jwt-token-for-local-sandbox-testing",
-                        name: formattedName === "Test" ? "Ved Shrimali" : formattedName,
-                        email: email,
-                        role: email.includes("admin") ? "ADMIN" : "FOUNDER"
-                    };
-                    components.showToast('Auth offline: Entered Sandbox Demo Mode', 'warning');
-                }
+                const data = await api.post(CONFIG.AUTH_API, '/auth/login', { email, password });
                 
                 // Store token and user details
                 api.setToken(data.token);
@@ -159,21 +142,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Call Auth API
-                try {
-                    await api.post(CONFIG.AUTH_API, '/auth/register', { 
-                        name, 
-                        email, 
-                        password, 
-                        confirmPassword 
-                    });
-                    components.showToast('Registration successful! Please login.', 'success');
-                } catch (netError) {
-                    if (netError.status) {
-                        throw netError;
-                    }
-                    console.warn("Auth API offline. Registering in local Sandbox Demo Mode.", netError);
-                    components.showToast('Auth offline: Registered in Sandbox Demo Mode!', 'warning');
-                }
+                await api.post(CONFIG.AUTH_API, '/auth/register', { 
+                    name, 
+                    email, 
+                    password, 
+                    confirmPassword 
+                });
+                components.showToast('Registration successful! Please login.', 'success');
 
                 setTimeout(() => {
                     window.location.href = 'login.html?registered=true';
@@ -236,13 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
             components.showLoading(requestForgotOtpBtn);
 
             try {
-                try {
-                    await api.post(CONFIG.AUTH_API, '/auth/forgot-password/request', { email });
-                    components.showToast('Verification code sent to your email!', 'success');
-                } catch (netError) {
-                    console.warn("Auth service offline. Simulating code generation.");
-                    components.showToast('Auth offline: Simulating code sending (Check server logs if running!)', 'warning');
-                }
+                await api.post(CONFIG.AUTH_API, '/auth/forgot-password/request', { email });
+                components.showToast('Verification code sent to your email!', 'success');
 
                 // Cooldown timer
                 let cooldown = 60;
@@ -320,18 +290,13 @@ document.addEventListener('DOMContentLoaded', () => {
             components.showLoading(submitBtn);
 
             try {
-                try {
-                    await api.post(CONFIG.AUTH_API, '/auth/forgot-password/reset', {
-                        email,
-                        verificationCode,
-                        newPassword,
-                        confirmNewPassword
-                    });
-                    components.showToast('Password reset successfully! Please login.', 'success');
-                } catch (netError) {
-                    console.warn("Auth service offline. Simulating password reset.");
-                    components.showToast('Password reset in local sandbox!', 'success');
-                }
+                await api.post(CONFIG.AUTH_API, '/auth/forgot-password/reset', {
+                    email,
+                    verificationCode,
+                    newPassword,
+                    confirmNewPassword
+                });
+                components.showToast('Password reset successfully! Please login.', 'success');
 
                 forgotPasswordForm.reset();
                 

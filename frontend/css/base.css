@@ -3,7 +3,7 @@
    ============================================= */
 
 /* ── Google Fonts ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ── Reset ── */
 *,
@@ -70,16 +70,17 @@ body {
 
 /* ── Typography ── */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: var(--font-semibold);
+    font-family: var(--font-display);
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
     line-height: var(--leading-tight);
     color: var(--text-primary);
-    letter-spacing: -0.01em;
+    letter-spacing: 0.05em;
 }
 
 h1 {
     font-size: var(--text-4xl);
-    font-weight: var(--font-bold);
-    letter-spacing: -0.025em;
+    letter-spacing: 0.04em;
 }
 
 h2 {

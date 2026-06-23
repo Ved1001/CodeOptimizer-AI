@@ -17,19 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadProfile() {
         try {
             // GET /auth/profile retrieves details of authenticated user
-            let profile;
-            try {
-                profile = await api.get(CONFIG.AUTH_API, '/auth/profile');
-            } catch (err) {
-                console.warn("Auth service offline. Loading profile from localStorage user data.");
-                const localUser = api.getUser() || { name: 'Ved Shrimali', email: 'test@gmail.com', role: 'FOUNDER' };
-                profile = {
-                    name: localUser.name || 'Ved Shrimali',
-                    email: localUser.email || 'test@gmail.com',
-                    role: localUser.role || 'FOUNDER',
-                    createdAt: new Date().toISOString()
-                };
-            }
+            const profile = await api.get(CONFIG.AUTH_API, '/auth/profile');
             
             // Populate profile display card details
             document.getElementById('profName').innerText = profile.name;
@@ -83,13 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // PUT /auth/profile {name}
-                let updatedProfile;
-                try {
-                    updatedProfile = await api.put(CONFIG.AUTH_API, '/auth/profile', { name });
-                } catch (err) {
-                    console.warn("Auth service offline. Saving profile name in local sandbox.");
-                    updatedProfile = { name };
-                }
+                const updatedProfile = await api.put(CONFIG.AUTH_API, '/auth/profile', { name });
                 
                 // Update local storage user data
                 const user = api.getUser();
@@ -118,13 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
         requestOtpBtn.addEventListener('click', async () => {
             components.showLoading(requestOtpBtn);
             try {
-                try {
-                    await api.post(CONFIG.AUTH_API, '/auth/send-verification-code', {});
-                    components.showToast('Verification code sent to your email!', 'success');
-                } catch (netError) {
-                    console.warn("Auth service offline. Simulating code generation.");
-                    components.showToast('Auth offline: Simulating code sending (Check server logs if running!)', 'warning');
-                }
+                await api.post(CONFIG.AUTH_API, '/auth/send-verification-code', {});
+                components.showToast('Verification code sent to your email!', 'success');
                 
                 // Disable button for 60 seconds as a cooldown
                 let cooldown = 60;
@@ -194,17 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // PUT /auth/change-password {verificationCode, newPassword, confirmNewPassword}
-                try {
-                    await api.put(CONFIG.AUTH_API, '/auth/change-password', { 
-                        verificationCode, 
-                        newPassword, 
-                        confirmNewPassword 
-                    });
-                    components.showToast('Password updated successfully!', 'success');
-                } catch (err) {
-                    console.warn("Auth service offline. Mocking successful password change.");
-                    components.showToast('Password updated in local sandbox!', 'success');
-                }
+                await api.put(CONFIG.AUTH_API, '/auth/change-password', { 
+                    verificationCode, 
+                    newPassword, 
+                    confirmNewPassword 
+                });
+                components.showToast('Password updated successfully!', 'success');
                 changePasswordForm.reset();
             } catch (error) {
                 console.error('Error changing password:', error);

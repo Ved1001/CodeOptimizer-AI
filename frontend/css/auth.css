@@ -57,7 +57,7 @@
 }
 
 .auth-card:hover {
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(196, 143, 71, 0.1);
 }
 
 .auth-header {
@@ -168,7 +168,7 @@ html.light-theme .auth-card {
 }
 
 html.light-theme .auth-card:hover {
-    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12), 0 0 30px rgba(99, 102, 241, 0.08);
+    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12), 0 0 30px rgba(185, 127, 55, 0.08);
 }
 
 html.light-theme .auth-footer {
