@@ -2,6 +2,7 @@ services:
   # Database Service
   mysql-db:
     image: mysql:8.0
+    restart: unless-stopped
     container_name: llm-opt-mysql
     ports:
       - "3307:3306"
@@ -23,6 +24,7 @@ services:
     build:
       context: ./service-registry
       dockerfile: Dockerfile
+    restart: unless-stopped
     container_name: service-registry
     ports:
       - "8761:8761"
@@ -41,6 +43,7 @@ services:
     build:
       context: ./api-dateway
       dockerfile: Dockerfile
+    restart: unless-stopped
     container_name: api-gateway
     ports:
       - "3333:3333"
@@ -57,6 +60,7 @@ services:
     build:
       context: ./auth-service
       dockerfile: Dockerfile
+    restart: unless-stopped
     container_name: auth-service
     ports:
       - "8080:8080"
@@ -82,6 +86,7 @@ services:
     build:
       context: ./routing-engine
       dockerfile: Dockerfile
+    restart: unless-stopped
     container_name: routing-engine
     ports:
       - "8081:8081"
