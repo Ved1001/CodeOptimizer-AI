@@ -12,14 +12,4 @@ public class ApiDatewayApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ApiDatewayApplication.class, args);
 	}
-
-	@Bean
-	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
-		return builder.routes()
-				.route("routing-service-route", r -> r.path("/api/v1/route/**")
-						.uri("lb://routing-engine"))
-				.route("budget-service-route", r -> r.path("/api/v1/budget/**")
-						.uri("lb://budget-service"))
-				.build();
-	}
 }
