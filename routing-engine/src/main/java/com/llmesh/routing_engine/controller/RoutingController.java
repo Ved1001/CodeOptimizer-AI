@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import java.util.concurrent.ConcurrentHashMap;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/route")
 public class RoutingController {
