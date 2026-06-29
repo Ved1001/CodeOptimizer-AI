@@ -74,4 +74,9 @@ public class AuthController {
     public ResponseEntity<Map<String, Boolean>> validateToken() {
         return ResponseEntity.ok(Map.of("valid", true));
     }
+   
+    @GetMapping("/health")
+    public String health() {
+        return "OK";
+    }
 }
