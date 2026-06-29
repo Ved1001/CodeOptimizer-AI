@@ -25,8 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
         promptTextarea.value = "";
     }
 
-    if (!isAuth) {
-        // Guest user: lock only the submit button with a lock icon
+    let guestCredits = 3;
+
+    function lockButtonForGuest() {
         if (optimizeBtn) {
             optimizeBtn.innerHTML = '<i class="fas fa-lock" style="margin-right: var(--space-2);"></i> Sign In to Run Optimization';
             optimizeBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
@@ -55,96 +56,176 @@ document.addEventListener('DOMContentLoaded', () => {
         if (optimizeBtn) {
             optimizeBtn.addEventListener('click', handleRedirect);
         }
+    }
+
+    async function handleOptimizeSubmit(event) {
+        event.preventDefault();
+
+        // Double check if guest credits got exhausted
+        if (!isAuth && guestCredits <= 0) {
+            if (optimizeBtn) {
+                optimizeBtn.disabled = true;
+                optimizeBtn.innerHTML = '<i class="fas fa-lock" style="margin-right: var(--space-2);"></i> Locked — Redirecting to Login...';
+            }
+            components.showToast('Please login to run terminal analysis', 'warning');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1200);
+            return;
+        }
         
-        // Reveal the page content
-        components.hideSkeleton();
-        return;
-    }
+        const promptVal = promptTextarea.value.trim();
+        const providerVal = providerSelect.value;
 
-    // ── Authenticated User Flow ──
-    if (optimizeForm) {
-        optimizeForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+        if (!promptVal) {
+            components.showToast('Please enter a query prompt before optimizing.', 'warning');
+            return;
+        }
+
+        // Show loading indicators
+        components.showLoading(optimizeBtn);
+        if (outputTelemetry) outputTelemetry.classList.remove('visible');
+        if (skeletonLoader) skeletonLoader.style.display = 'flex';
+
+        try {
+            const requestPayload = {
+                username: isAuth ? (user.email || 'ved') : 'guest_user',
+                provider: providerVal,
+                prompt: promptVal
+            };
+
+            const data = await api.post(CONFIG.ROUTE_API, '/api/v1/route/analyze-and-advise', requestPayload);
             
-            const promptVal = promptTextarea.value.trim();
-            const providerVal = providerSelect.value;
+            // Hide skeleton
+            if (skeletonLoader) skeletonLoader.style.display = 'none';
 
-            if (!promptVal) {
-                components.showToast('Please enter a query prompt before optimizing.', 'warning');
-                return;
-            }
-
-            // Show loading indicators
-            components.showLoading(optimizeBtn);
-            if (outputTelemetry) outputTelemetry.classList.remove('visible');
-            if (skeletonLoader) skeletonLoader.style.display = 'flex';
-
-            try {
-                // CostReducer AI Routing Engine is on port 8081
-                // Endpoint: POST /api/v1/route/analyze-and-advise
-                const requestPayload = {
-                    username: user.email || 'ved',
-                    provider: providerVal,
-                    prompt: promptVal
-                };
-
-                const data = await api.post(CONFIG.ROUTE_API, '/api/v1/route/analyze-and-advise', requestPayload);
+            if (data.status === 'SUCCESS') {
+                // Populate prompt diff
+                document.getElementById('rawPromptText').innerText = data.rawOriginalPrompt || promptVal;
+                document.getElementById('optimizedPromptText').innerText = data.optimizedPrompt || '';
                 
-                // Hide skeleton
-                if (skeletonLoader) skeletonLoader.style.display = 'none';
+                const savedPct = data.tokenMetrics.optimizationPercent.toFixed(1);
+                document.getElementById('rawTokensCount').innerText = `${data.tokenMetrics.rawBaselineTokens} tokens`;
+                document.getElementById('optimizedTokensCount').innerText = `${data.tokenMetrics.optimizedBaselineTokens} tokens (-${savedPct}%)`;
 
-                if (data.status === 'SUCCESS') {
-                    // Populate prompt diff
-                    document.getElementById('rawPromptText').innerText = data.rawOriginalPrompt || promptVal;
-                    document.getElementById('optimizedPromptText').innerText = data.optimizedPrompt || '';
-                    
-                    const savedPct = data.tokenMetrics.optimizationPercent.toFixed(1);
-                    document.getElementById('rawTokensCount').innerText = `${data.tokenMetrics.rawBaselineTokens} tokens`;
-                    document.getElementById('optimizedTokensCount').innerText = `${data.tokenMetrics.optimizedBaselineTokens} tokens (-${savedPct}%)`;
+                // Populate Cards
+                populateStrategyCard('budgetSaviorCard', 'budgetModel', 'budgetProvider', 'budgetCost', 'budgetJustification', data.budgetSaviorCard);
+                populateStrategyCard('smartBalancedCard', 'balancedModel', 'balancedProvider', 'balancedCost', 'balancedJustification', data.smartBalancedCard);
+                populateStrategyCard('taskPowerhouseCard', 'powerhouseModel', 'powerhouseProvider', 'powerhouseCost', 'powerhouseJustification', data.taskPowerhouseCard);
 
-                    // Populate Cards
-                    populateStrategyCard('budgetSaviorCard', 'budgetModel', 'budgetProvider', 'budgetCost', 'budgetJustification', data.budgetSaviorCard);
-                    populateStrategyCard('smartBalancedCard', 'balancedModel', 'balancedProvider', 'balancedCost', 'balancedJustification', data.smartBalancedCard);
-                    populateStrategyCard('taskPowerhouseCard', 'powerhouseModel', 'powerhouseProvider', 'powerhouseCost', 'powerhouseJustification', data.taskPowerhouseCard);
+                // Populate Financial Summary
+                document.getElementById('summarySelectedProvider').innerText = `${data.costMetrics.selectedProvider} (${data.costMetrics.selectedModel})`;
+                document.getElementById('summaryRawCost').innerText = `$${formatUsdCost(data.costMetrics.rawCostUsd)}`;
+                document.getElementById('summaryOptimizedCost').innerText = `$${formatUsdCost(data.costMetrics.optimizedCostUsd)}`;
+                
+                const savingsBadge = document.getElementById('summarySavingsPercent');
+                savingsBadge.innerText = `${savedPct}% Save`;
+                
+                // Domain Badge
+                const domainBadge = document.getElementById('dynamicDomainBadge');
+                domainBadge.innerText = data.specializedDomain || 'General Systems Task';
+                domainBadge.title = data.specializedDomain || '';
 
-                    // Populate Financial Summary
-                    document.getElementById('summarySelectedProvider').innerText = `${data.costMetrics.selectedProvider} (${data.costMetrics.selectedModel})`;
-                    document.getElementById('summaryRawCost').innerText = `$${formatUsdCost(data.costMetrics.rawCostUsd)}`;
-                    document.getElementById('summaryOptimizedCost').innerText = `$${formatUsdCost(data.costMetrics.optimizedCostUsd)}`;
-                    
-                    const savingsBadge = document.getElementById('summarySavingsPercent');
-                    savingsBadge.innerText = `${savedPct}% Save`;
-                    
-                    // Domain Badge
-                    const domainBadge = document.getElementById('dynamicDomainBadge');
-                    domainBadge.innerText = data.specializedDomain || 'General Systems Task';
-                    domainBadge.title = data.specializedDomain || '';
+                // Animate Radial Gauge Score
+                animateSpeedometer(data.finalArbitrageScore || 50);
 
-                    // Animate Radial Gauge Score
-                    animateSpeedometer(data.finalArbitrageScore || 50);
+                // Render Cost Comparison Grid for All Models
+                renderModelCostComparison(data);
 
-                    // Render Cost Comparison Grid for All Models
-                    renderModelCostComparison(data);
+                // Make output visible
+                if (outputTelemetry) outputTelemetry.classList.add('visible');
+                
+                if (!isAuth) {
+                    guestCredits = data.guestCreditsRemaining !== undefined ? data.guestCreditsRemaining : 0;
+                    localStorage.setItem('guest_credits', guestCredits.toString());
 
-                    // Make output visible
-                    if (outputTelemetry) outputTelemetry.classList.add('visible');
-                    components.showToast('CostReducer AI Token Compression & Strategy Match Complete!', 'success');
+                    if (guestCredits > 0) {
+                        components.showToast('Optimization complete! You have ' + guestCredits + ' guest credits remaining.', 'success');
+                    } else {
+                        components.showToast('You have used your last guest credit. Redirecting to sign in...', 'warning');
+                        if (optimizeForm) {
+                            optimizeForm.removeEventListener('submit', handleOptimizeSubmit);
+                        }
+                        lockButtonForGuest();
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 1500);
+                    }
                 } else {
-                    components.showToast(data.message || 'Optimization failed.', 'error');
+                    components.showToast('CostReducer AI Token Compression & Strategy Match Complete!', 'success');
                 }
-
-            } catch (error) {
-                console.error(error);
-                components.showToast(error.message || 'Error communicating with routing engine API.', 'error');
-                if (skeletonLoader) skeletonLoader.style.display = 'none';
-            } finally {
-                components.hideLoading(optimizeBtn, '<i class="fas fa-bolt" style="margin-right: var(--space-2);"></i> Run CostReducer AI Optimization');
+            } else {
+                // If backend returned error because guest credits are 0
+                if (data.guestCreditsRemaining === 0 || (data.errorMessage && data.errorMessage.includes("guest credits"))) {
+                    guestCredits = 0;
+                    localStorage.setItem('guest_credits', '0');
+                    components.showToast(data.errorMessage || 'You have used all guest credits. Please sign in.', 'error');
+                    if (optimizeForm) {
+                        optimizeForm.removeEventListener('submit', handleOptimizeSubmit);
+                    }
+                    lockButtonForGuest();
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    components.showToast(data.message || data.errorMessage || 'Optimization failed.', 'error');
+                }
             }
-        });
+
+        } catch (error) {
+            console.error(error);
+            components.showToast(error.message || 'Error communicating with routing engine API.', 'error');
+            if (skeletonLoader) skeletonLoader.style.display = 'none';
+        } finally {
+            if (!isAuth && guestCredits <= 0) {
+                if (optimizeBtn) {
+                    optimizeBtn.removeAttribute('disabled');
+                    optimizeBtn.innerHTML = '<i class="fas fa-lock" style="margin-right: var(--space-2);"></i> Sign In to Run Optimization';
+                    optimizeBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    optimizeBtn.style.color = '#fff';
+                    optimizeBtn.style.border = 'none';
+                }
+            } else {
+                const restoredText = isAuth 
+                    ? '<i class="fas fa-bolt" style="margin-right: var(--space-2);"></i> Run CostReducer AI Optimization'
+                    : '<i class="fas fa-bolt" style="margin-right: var(--space-2);"></i> Run Optimization (' + guestCredits + ' credits left)';
+                components.hideLoading(optimizeBtn, restoredText);
+            }
+        }
     }
-    
-    // Hide loading skeleton and reveal terminal content
-    components.hideSkeleton();
+
+    const initPage = async () => {
+        if (!isAuth) {
+            try {
+                const res = await api.get(CONFIG.ROUTE_API, '/api/v1/route/guest-credits');
+                guestCredits = res.credits !== undefined ? res.credits : 3;
+            } catch (err) {
+                console.warn('Could not fetch guest credits from server, defaulting to local fallback:', err);
+                const local = localStorage.getItem('guest_credits');
+                guestCredits = local !== null ? parseInt(local, 10) : 3;
+            }
+
+            if (guestCredits <= 0) {
+                lockButtonForGuest();
+                components.hideSkeleton();
+                return;
+            } else {
+                if (optimizeBtn) {
+                    optimizeBtn.innerHTML = '<i class="fas fa-bolt" style="margin-right: var(--space-2);"></i> Run Optimization (' + guestCredits + ' credits left)';
+                }
+                components.showToast('Welcome Guest! You have ' + guestCredits + ' free optimization credits remaining.', 'info');
+            }
+        }
+
+        if (optimizeForm) {
+            optimizeForm.addEventListener('submit', handleOptimizeSubmit);
+        }
+        
+        components.hideSkeleton();
+    };
+
+    // Run async init
+    initPage();
 });
 
 // Helper to format scientific decimal costs into elegant readable text

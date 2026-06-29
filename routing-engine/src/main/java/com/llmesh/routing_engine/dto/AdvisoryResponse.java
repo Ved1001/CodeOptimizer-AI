@@ -17,7 +17,8 @@ public record AdvisoryResponse(
         String optimizedPrompt,
         String specializedDomain,
         int finalArbitrageScore,
-        String errorMessage
+        String errorMessage,
+        Integer guestCreditsRemaining
 ) {
     public record RoutingOption(
             String strategyType,
@@ -48,13 +49,42 @@ public record AdvisoryResponse(
                 optimizedPrompt,
                 specializedDomain,    // ◄── MODIFICATION 2: Injected field
                 finalArbitrageScore,  // ◄── MODIFICATION 2: Injected field
+                null,
                 null
+        );
+    }
+
+    public static AdvisoryResponse successWithGuestCredits(
+            String username, RoutingOption budget, RoutingOption balanced, RoutingOption powerhouse,
+            TokenMetrics tokens, CostMetrics costs, String rawPrompt, String optimizedPrompt,
+            String specializedDomain, int finalArbitrageScore, Integer guestCreditsRemaining) {
+
+        return new AdvisoryResponse(
+                "SUCCESS",
+                username,
+                System.currentTimeMillis(),
+                budget,
+                balanced,
+                powerhouse,
+                tokens,
+                costs,
+                rawPrompt,
+                optimizedPrompt,
+                specializedDomain,
+                finalArbitrageScore,
+                null,
+                guestCreditsRemaining
         );
     }
 
     public static AdvisoryResponse error(String username, String message) {
         return new AdvisoryResponse("ERROR", username, System.currentTimeMillis(),
-                null, null, null, null, null, null, null, null, 0, message);
+                null, null, null, null, null, null, null, null, 0, message, null);
+    }
+
+    public static AdvisoryResponse errorWithGuestCredits(String username, String message, Integer guestCreditsRemaining) {
+        return new AdvisoryResponse("ERROR", username, System.currentTimeMillis(),
+                null, null, null, null, null, null, null, null, 0, message, guestCreditsRemaining);
     }
 
     public record TokenMetrics(

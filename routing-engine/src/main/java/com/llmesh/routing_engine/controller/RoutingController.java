@@ -6,8 +6,10 @@ import com.llmesh.routing_engine.service.BudgetService;
 import com.llmesh.routing_engine.service.GroqOrchestrationService;
 import com.llmesh.routing_engine.utils.PromptOptimizer;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import java.util.concurrent.ConcurrentHashMap;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -16,15 +18,67 @@ public class RoutingController {
 
     private final BudgetService budgetService;
     private final GroqOrchestrationService groqService;
+    private final ConcurrentHashMap<String, Integer> guestIpCreditsMap = new ConcurrentHashMap<>();
 
     public RoutingController(BudgetService budgetService, GroqOrchestrationService groqService) {
         this.budgetService = budgetService;
         this.groqService = groqService;
     }
 
+    private String getClientIp(ServerHttpRequest request) {
+        String xForwardedFor = request.getHeaders().getFirst("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        if (request.getRemoteAddress() != null && request.getRemoteAddress().getAddress() != null) {
+            return request.getRemoteAddress().getAddress().getHostAddress();
+        }
+        return "unknown";
+    }
+
+    private int getRemainingGuestCredits(String ip) {
+        return guestIpCreditsMap.computeIfAbsent(ip, k -> 3);
+    }
+
+    private int useGuestCredit(String ip) {
+        return guestIpCreditsMap.compute(ip, (k, current) -> {
+            if (current == null) {
+                return 2;
+            }
+            return Math.max(0, current - 1);
+        });
+    }
+
+    @GetMapping("/guest-credits")
+    public Mono<ResponseEntity<java.util.Map<String, Object>>> getGuestCredits(
+            ServerHttpRequest httpRequest) {
+        String clientIp = getClientIp(httpRequest);
+        int credits = getRemainingGuestCredits(clientIp);
+        return Mono.just(ResponseEntity.ok(java.util.Map.of(
+                "credits", credits
+        )));
+    }
+
     @PostMapping("/analyze-and-advise")
     public Mono<ResponseEntity<AdvisoryResponse>> analyzeAndAdvise(
-            @RequestBody OptimizationRequest request) {
+            @RequestBody OptimizationRequest request,
+            ServerHttpRequest httpRequest) {
+
+        String clientIp = getClientIp(httpRequest);
+        boolean isAuth = httpRequest.getHeaders().containsKey("Authorization");
+
+        if (!isAuth) {
+            int currentCredits = getRemainingGuestCredits(clientIp);
+            if (currentCredits <= 0) {
+                return Mono.just(ResponseEntity.ok(
+                        AdvisoryResponse.errorWithGuestCredits(
+                                request.username(),
+                                "You have used all guest credits. Please sign in.",
+                                0
+                        )
+                ));
+            }
+        }
 
         String validationError = validate(request);
         if (validationError != null) {
@@ -112,18 +166,36 @@ public class RoutingController {
                                         comparison
                                 );
 
-                                AdvisoryResponse response = AdvisoryResponse.success(
-                                        request.username(),
-                                        budgetSavior,
-                                        smartBalanced,
-                                        taskPowerhouse,
-                                        tokens,
-                                        costs,
-                                        request.prompt(),
-                                        aiReducedPrompt,
-                                        telemetryReport.specializedDomain(),  // ◄── Feed Dynamic Domain directly from Groq AI
-                                        telemetryReport.finalArbitrageScore()   // ◄── Feed Dynamic Arbitrage Score directly from Groq AI
-                                );
+                                AdvisoryResponse response;
+                                if (!isAuth) {
+                                    int newCredits = useGuestCredit(clientIp);
+                                    response = AdvisoryResponse.successWithGuestCredits(
+                                            request.username(),
+                                            budgetSavior,
+                                            smartBalanced,
+                                            taskPowerhouse,
+                                            tokens,
+                                            costs,
+                                            request.prompt(),
+                                            aiReducedPrompt,
+                                            telemetryReport.specializedDomain(),
+                                            telemetryReport.finalArbitrageScore(),
+                                            newCredits
+                                    );
+                                } else {
+                                    response = AdvisoryResponse.success(
+                                            request.username(),
+                                            budgetSavior,
+                                            smartBalanced,
+                                            taskPowerhouse,
+                                            tokens,
+                                            costs,
+                                            request.prompt(),
+                                            aiReducedPrompt,
+                                            telemetryReport.specializedDomain(),
+                                            telemetryReport.finalArbitrageScore()
+                                    );
+                                }
 
                                 return ResponseEntity.ok(response);
                             });
