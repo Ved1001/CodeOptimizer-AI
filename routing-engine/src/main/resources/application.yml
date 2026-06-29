@@ -16,9 +16,12 @@ eureka:
       defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka}
     fetch-registry: true
     register-with-eureka: true
+
   instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${server.port}
+    hostname: ${RENDER_EXTERNAL_HOSTNAME:routing-engine.onrender.com}
+    secure-port-enabled: true
+    non-secure-port-enabled: false
+    instance-id: ${spring.application.name}:${RENDER_EXTERNAL_HOSTNAME:routing-engine.onrender.com}
 
 llmesh:
   budget-service:
